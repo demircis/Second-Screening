@@ -48,7 +48,7 @@ class SubtitlesViewController: UIViewController, SrtDelegate {
     }
     
     @objc func startTimer() {
-        timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(startDisplayingSubtitles), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(startDisplayingSubtitles), userInfo: nil, repeats: true)
         if started {
             startTime = timer.fireDate
             started = false
