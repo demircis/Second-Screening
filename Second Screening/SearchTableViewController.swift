@@ -13,6 +13,8 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
     
     let searchController = UISearchController(searchResultsController: nil)
     
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     var mediaItems = [MediaItem]()
     
     var requestManager: RequestManager?
@@ -22,12 +24,14 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         requestManager = RequestManager(delegate: self)
-        searchController.hidesNavigationBarDuringPresentation = false
-        searchController.dimsBackgroundDuringPresentation = false
-        searchController.searchBar.sizeToFit()
-        searchController.searchBar.delegate = self
-        searchController.searchBar.placeholder = "Search Movies or TV Shows"
-        self.tableView.tableHeaderView = searchController.searchBar
+        searchBar.delegate = self
+//        searchController.hidesNavigationBarDuringPresentation = false
+//        searchController.dimsBackgroundDuringPresentation = false
+//        searchController.searchBar.sizeToFit()
+//        searchController.searchBar.barTintColor = Color.white
+//        searchController.searchBar.delegate = self
+//        searchController.searchBar.placeholder = "Search Movies or TV Shows"
+//        self.tableView.tableHeaderView = searchController.searchBar
     }
 
     override func didReceiveMemoryWarning() {
@@ -37,6 +41,7 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         mediaItems.removeAll()
+        searchBar.endEditing(true)
         requestManager?.sendSubtitlesRequest(searchBar: searchBar)
     }
     
@@ -70,7 +75,7 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
         }
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.performSegue(withIdentifier: "CellSegue", sender: nil)
+        //self.performSegue(withIdentifier: "CellSegue", sender: nil)
         let item = mediaItems[indexPath.row]
         item.downloadSubtitlesZip() { url, enc in
             print("srt done")
