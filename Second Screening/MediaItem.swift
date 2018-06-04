@@ -39,6 +39,8 @@ class MediaItem: NSObject {
     var downloadLink: URL
     var fileManager: FileManager
     var srtFilePath: URL
+    
+    var sameZipCount: Int = 0
 
     init(info: MediaInformation) {
         self.mediaType = info.type
@@ -57,7 +59,21 @@ class MediaItem: NSObject {
     }
     
     func downloadSubtitlesZip(completion: @escaping (URL, String) -> Void) {
-        let saveUrl = self.subtitleTitle + ".zip"
+        let downloadPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("Subtitles")
+        if !self.fileManager.fileExists(atPath: downloadPath.path) {
+            do {
+                try self.fileManager.createDirectory(at: downloadPath, withIntermediateDirectories: true, attributes: [:])
+                print("directory created")
+            } catch {
+                print("directory error")
+            }
+
+        }
+        var saveUrl = self.subtitleTitle + ".zip"
+        if self.fileManager.fileExists(atPath: downloadPath.appendingPathComponent(saveUrl).path) {
+            sameZipCount += 1
+            saveUrl = self.subtitleTitle + String(sameZipCount) + ".zip"
+        }
         let destination: DownloadRequest.DownloadFileDestination = { _, _ in
             let directoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let file = directoryUrl.appendingPathComponent(saveUrl, isDirectory: false)
@@ -65,25 +81,16 @@ class MediaItem: NSObject {
         }
         Alamofire.download(downloadLink, to: destination).responseData { response in
             if response.result.error == nil {
-                do {
-                    let downloadPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("Subtitles")
-                    if !self.fileManager.fileExists(atPath: downloadPath.path) {
-                        try self.fileManager.createDirectory(at: downloadPath, withIntermediateDirectories: true, attributes: [:])
-                        print("directory created")
-                    }
+                self.srtFilePath = downloadPath.appendingPathComponent(self.fileName)
+                if self.fileManager.fileExists(atPath: self.srtFilePath.path) {
+                    completion(self.srtFilePath, self.encoding)
+                } else {
+                    print("unzipping file")
+                    SSZipArchive.unzipFile(atPath: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(saveUrl).path, toDestination: downloadPath.path)
                     self.srtFilePath = downloadPath.appendingPathComponent(self.fileName)
-                    if self.fileManager.fileExists(atPath: self.srtFilePath.path) {
-                        completion(self.srtFilePath, self.encoding)
-                    } else {
-                        print("unzipping file")
-                        SSZipArchive.unzipFile(atPath: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(saveUrl).path, toDestination: downloadPath.path)
-                        self.srtFilePath = downloadPath.appendingPathComponent(self.fileName)
-                        completion(self.srtFilePath, self.encoding)
-                    }
-                    print("downloaded .srt file")
-                } catch {
-                    print("Unzipping error")
+                    completion(self.srtFilePath, self.encoding)
                 }
+                print("downloaded .srt file")
             } else {
                 print("no download")
             }

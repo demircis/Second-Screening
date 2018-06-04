@@ -18,6 +18,7 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
     var mediaItems = [MediaItem]()
     
     var requestManager: RequestManager?
+    var fileManager: FileManager = FileManager()
     
     var srtDelegate: SrtDelegate?
     
@@ -25,13 +26,6 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
         super.viewDidLoad()
         requestManager = RequestManager(delegate: self)
         searchBar.delegate = self
-//        searchController.hidesNavigationBarDuringPresentation = false
-//        searchController.dimsBackgroundDuringPresentation = false
-//        searchController.searchBar.sizeToFit()
-//        searchController.searchBar.barTintColor = Color.white
-//        searchController.searchBar.delegate = self
-//        searchController.searchBar.placeholder = "Search Movies or TV Shows"
-//        self.tableView.tableHeaderView = searchController.searchBar
     }
 
     override func didReceiveMemoryWarning() {
@@ -75,12 +69,21 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
         }
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //self.performSegue(withIdentifier: "CellSegue", sender: nil)
         let item = mediaItems[indexPath.row]
         item.downloadSubtitlesZip() { url, enc in
             print("srt done")
-            self.srtDelegate?.passSrtInfo(fileURL: url, encoding: enc, runtime: item.runtime)
+            if !self.fileManager.fileExists(atPath: url.path) {
+                self.showNotFoundAlert()
+            } else {
+                self.srtDelegate?.passSrtInfo(fileURL: url, encoding: enc, runtime: item.runtime)
+            }
         }
+    }
+
+    func showNotFoundAlert() {
+        let alertController = UIAlertController(title: "Subtitles", message: "Subtitle file not found. Subtitle filename does not match file name from API call.", preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
     }
 
 }

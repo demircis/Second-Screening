@@ -10,6 +10,8 @@ import UIKit
 
 class SubtitlesViewController: UIViewController, SrtDelegate {
     
+    
+    var fileManager: FileManager = FileManager()
     var srtParser: SrtParser?
     var timer = Timer()
     var startTime: Date?
