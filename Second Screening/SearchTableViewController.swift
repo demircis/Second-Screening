@@ -99,8 +99,8 @@ extension SearchTableViewController: ItemsDelegate {
     
     func setImage(item: MediaItem, data: Data) {
         print("imgrefresh")
-        let i = mediaItems.index(of: item)
-        mediaItems[i!].coverImage = UIImage(data: data)!
+        guard let i = mediaItems.index(of: item), let img = UIImage(data: data) else { return }
+        mediaItems[i].coverImage = img
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }

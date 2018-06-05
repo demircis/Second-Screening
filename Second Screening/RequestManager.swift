@@ -138,8 +138,15 @@ class RequestManager: NSObject {
                     mediaInfo.seasonAndEpisode = "S\(item["SeriesSeason"]!)E\(item["SeriesEpisode"]!)"
                     let gotTitle = "\(item["MovieName"]!)"
                     let matcher = titleEpisodeParser.matches(in: gotTitle, options: [], range: NSMakeRange(0, gotTitle.count))
-                    mediaInfo.title = String(gotTitle[Range((matcher[0].range(at: 1)), in: gotTitle)!]) + " (\(item["MovieYear"]!))"
-                    mediaInfo.episodeTitle = String(gotTitle[Range((matcher[0].range(at: 2)), in: gotTitle)!])
+                    if matcher.isEmpty {
+                        print("EMPTY MATCH")
+                        print("Title: " + gotTitle)
+                        mediaInfo.title = gotTitle
+                        mediaInfo.episodeTitle = ""
+                    } else {
+                        mediaInfo.title = String(gotTitle[Range((matcher[0].range(at: 1)), in: gotTitle)!]) + " (\(item["MovieYear"]!))"
+                        mediaInfo.episodeTitle = String(gotTitle[Range((matcher[0].range(at: 2)), in: gotTitle)!])
+                    }
                 }
                 mediaInfo.runtime = "\(item["SubLastTS"]!)"
                 mediaInfo.subtitle = "\(item["MovieReleaseName"]!)"
