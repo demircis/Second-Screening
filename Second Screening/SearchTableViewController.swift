@@ -10,9 +10,7 @@ import UIKit
 import Kingfisher
 
 class SearchTableViewController: UITableViewController, UISearchBarDelegate {
-    
-    let searchController = UISearchController(searchResultsController: nil)
-    
+        
     @IBOutlet weak var searchBar: UISearchBar!
     
     var mediaItems = [MediaItem]()
@@ -44,7 +42,6 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("Number of items: " + String(mediaItems.count))
         return mediaItems.count
     }
     
@@ -52,6 +49,9 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
         let cellIdentifier = "MediaItemViewCell"
         guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? SearchResultsTableViewCell  else {
             fatalError("The dequeued cell is not an instance of MediaItemViewCell.")
+        }
+        if (mediaItems.count == 0) {
+            print("items count: " + String(mediaItems.count))
         }
         let item = mediaItems[indexPath.row]
         // Configure the cell...

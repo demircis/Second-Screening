@@ -69,7 +69,7 @@ class MediaItem: NSObject {
             }
 
         }
-        var saveUrl = self.subtitleTitle + ".gz"
+        let saveUrl = self.subtitleTitle + ".gz"
 //        if self.fileManager.fileExists(atPath: downloadPath.appendingPathComponent(saveUrl).path) {
 //            sameZipCount += 1
 //            saveUrl = self.subtitleTitle + String(sameZipCount) + ".zip"
@@ -85,15 +85,11 @@ class MediaItem: NSObject {
                 if self.fileManager.fileExists(atPath: self.srtFilePath.path) {
                     completion(self.srtFilePath, self.encoding)
                 } else {
-                    print("unzipping file")
-                    let decompData: Data
+                    var decompData: Data
                     do {
                         let gzip = try Data(contentsOf: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(saveUrl), options: .mappedIfSafe)
-                        print("got data from gzip")
                         decompData = try! gzip.gunzipped()
-                        print("unzipped gzip to data")
                         try decompData.write(to: self.srtFilePath, options: .atomicWrite)
-                        print("written file")
                     } catch {
                         print("unzip error")
                     }

@@ -43,7 +43,6 @@ class RequestManager: NSObject {
         if var urlComponents = URLComponents(string: baseURL) {
             urlComponents.path = options
             guard let url = urlComponents.url else { return }
-            print(url)
             dataTask = urlSession.dataTask(with: url) { data, response, error in
                 defer { self.dataTask = nil }
                 
@@ -55,7 +54,6 @@ class RequestManager: NSObject {
                     response.statusCode == 200 {
                     do {
                         let json = try JSONSerialization.jsonObject(with: data, options: []) as! [[String: Any]]
-                        print(json)
                         if !json.isEmpty {
                             self.parseJsonResponse(jsonSubtitles: json)
                         }
@@ -80,7 +78,6 @@ class RequestManager: NSObject {
             urlComponents.queryItems = [apikey, media]
             
             guard let url = urlComponents.url else { return }
-            print(url)
             dataTaskCover = urlSessionCover.dataTask(with: url) { data, response, error in
                 defer { self.dataTaskCover = nil }
                 
@@ -90,7 +87,6 @@ class RequestManager: NSObject {
                 } else if let data = data,
                     let response = response as? HTTPURLResponse,
                     response.statusCode == 200 {
-                    print("DTC started")
                     do {
                         let json = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
                         if !json.isEmpty {
@@ -114,7 +110,6 @@ class RequestManager: NSObject {
     }
     
     func startDownloadTask(url: URL, item: MediaItem) {
-        print(url)
         getDataFromUrl(url: url) { data, response, error in
             guard let data = data, error == nil else { return }
             // callback

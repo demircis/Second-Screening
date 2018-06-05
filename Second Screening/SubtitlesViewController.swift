@@ -50,7 +50,7 @@ class SubtitlesViewController: UIViewController, SrtDelegate {
     }
     
     @objc func startTimer() {
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(startDisplayingSubtitles), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(startDisplayingSubtitles), userInfo: nil, repeats: true)
         if started {
             startTime = timer.fireDate
             started = false
@@ -74,13 +74,14 @@ class SubtitlesViewController: UIViewController, SrtDelegate {
         timeDifference = currTime.timeIntervalSince(startTime!)
         truncatedTimeDifference = truncate(number: timeDifference.magnitude)
         textToSet = (srtParser?.readSubtitles(time: truncatedTimeDifference))!
-        if textToSet != "" {
-            //print(textToSet ?? "nothing")
-            //subtitlesText.text = textToSet
-        }
         runtimeToSet = secondsToHoursMinutesSeconds(seconds: Int(truncatedTimeDifference))
         runtimeText.text = String(format: "%02d:%02d:%02d / ", runtimeToSet.0, runtimeToSet.1, runtimeToSet.2) + self.runtime
-        subtitlesText.text = textToSet
+        if textToSet != """
+            AmericasCardroom.com brings poker back
+            Million Dollar Sunday Tournament every Sunday
+            """ {
+                subtitlesText.text = textToSet
+        }
     }
     
     func truncate(number: Double) -> Double {
