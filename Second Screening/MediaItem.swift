@@ -8,7 +8,7 @@
 
 import UIKit
 import Alamofire
-import SSZipArchive
+import Gzip
 
 struct MediaInformation {
     var type: String
@@ -69,11 +69,11 @@ class MediaItem: NSObject {
             }
 
         }
-        var saveUrl = self.subtitleTitle + ".zip"
-        if self.fileManager.fileExists(atPath: downloadPath.appendingPathComponent(saveUrl).path) {
-            sameZipCount += 1
-            saveUrl = self.subtitleTitle + String(sameZipCount) + ".zip"
-        }
+        var saveUrl = self.subtitleTitle + ".gz"
+//        if self.fileManager.fileExists(atPath: downloadPath.appendingPathComponent(saveUrl).path) {
+//            sameZipCount += 1
+//            saveUrl = self.subtitleTitle + String(sameZipCount) + ".zip"
+//        }
         let destination: DownloadRequest.DownloadFileDestination = { _, _ in
             let directoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let file = directoryUrl.appendingPathComponent(saveUrl, isDirectory: false)
@@ -86,7 +86,17 @@ class MediaItem: NSObject {
                     completion(self.srtFilePath, self.encoding)
                 } else {
                     print("unzipping file")
-                    SSZipArchive.unzipFile(atPath: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(saveUrl).path, toDestination: downloadPath.path)
+                    let decompData: Data
+                    do {
+                        let gzip = try Data(contentsOf: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(saveUrl), options: .mappedIfSafe)
+                        print("got data from gzip")
+                        decompData = try! gzip.gunzipped()
+                        print("unzipped gzip to data")
+                        try decompData.write(to: self.srtFilePath, options: .atomicWrite)
+                        print("written file")
+                    } catch {
+                        print("unzip error")
+                    }
                     self.srtFilePath = downloadPath.appendingPathComponent(self.fileName)
                     completion(self.srtFilePath, self.encoding)
                 }
